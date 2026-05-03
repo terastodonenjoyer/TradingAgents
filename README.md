@@ -132,6 +132,64 @@ For local models with Ollama:
 docker compose --profile ollama run --rm tradingagents-ollama
 ```
 
+### Local LLM (Ollama) Step-by-Step
+
+If you've never used a local LLM, follow these steps end-to-end:
+
+1. **Pick a model size based on your hardware**
+   - **CPU-only / low VRAM (≤ 8GB):** start with smaller models like `qwen3:latest` (8B).
+   - **Mid-range GPU (12–16GB VRAM):** try `gpt-oss:latest` (20B).
+   - **High-end GPU (24GB+ VRAM):** consider `glm-4.7-flash:latest` (30B).
+   - These map to TradingAgents' default Ollama choices in the CLI.
+
+2. **Install Ollama**
+   - Download and install from https://ollama.com/download.
+   - On macOS/Windows, the app starts the local server automatically.
+   - On Linux, start the server manually:
+     ```bash
+     ollama serve
+     ```
+
+3. **Pull the model**
+   ```bash
+   ollama pull qwen3:latest
+   ```
+
+4. **Verify the model responds locally**
+   ```bash
+   ollama run qwen3:latest "Say hello in one sentence."
+   ```
+
+5. **Install TradingAgents**
+   ```bash
+   pip install .
+   ```
+
+6. **Configure TradingAgents to use Ollama**
+   - **CLI (recommended):**
+     ```bash
+     tradingagents
+     ```
+     Select **Ollama** as the provider, then pick the model you pulled for both the quick and deep thinkers.
+   - **Python:**
+     ```python
+     config = DEFAULT_CONFIG.copy()
+     config["llm_provider"] = "ollama"
+     config["quick_think_llm"] = "qwen3:latest"
+     config["deep_think_llm"] = "qwen3:latest"
+     ```
+
+7. **Confirm the endpoint**
+   - TradingAgents expects Ollama at `http://localhost:11434/v1` by default.
+   - If your Ollama server runs elsewhere, set:
+     ```python
+     config["backend_url"] = "http://<host>:<port>/v1"
+     ```
+
+8. **Run a small test**
+   - In the CLI, pick a single ticker and a short date range.
+   - If runs are slow or crash, downgrade the model size or reduce debate rounds.
+
 ### Required APIs
 
 TradingAgents supports multiple LLM providers. Set the API key for your chosen provider:
