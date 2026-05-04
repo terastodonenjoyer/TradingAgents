@@ -22,7 +22,7 @@ def get_news(ticker, start_date, end_date) -> dict[str, str] | str:
 
     return _make_api_request("NEWS_SENTIMENT", params)
 
-def get_global_news(curr_date, look_back_days: int = 5, limit: int = 50) -> dict[str, str] | str:
+def get_global_news(curr_date, look_back_days: int = 5, limit: int = 5) -> dict[str, str] | str:
     """Returns global market news & sentiment data without ticker-specific filtering.
 
     Covers broad market topics like financial markets, economy, and more.
@@ -30,7 +30,7 @@ def get_global_news(curr_date, look_back_days: int = 5, limit: int = 50) -> dict
     Args:
         curr_date: Current date in yyyy-mm-dd format.
         look_back_days: Number of days to look back (default 5).
-        limit: Maximum number of articles (default 50).
+        limit: Maximum number of articles (default 5).
 
     Returns:
         Dictionary containing global news sentiment data or JSON string.

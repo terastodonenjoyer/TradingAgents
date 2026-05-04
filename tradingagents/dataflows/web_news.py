@@ -292,8 +292,10 @@ def get_global_news_web(
                 continue
         filtered.append(article)
 
-    filtered.sort(key=lambda item: item.get("published") or datetime.min, reverse=True)
-    filtered.sort(key=lambda item: item.get("published") is None)
+    dated = [item for item in filtered if item.get("published")]
+    undated = [item for item in filtered if not item.get("published")]
+    dated.sort(key=lambda item: item["published"], reverse=True)
+    filtered = dated + undated
     filtered = filtered[:limit]
     result = _format_articles(
         filtered,
