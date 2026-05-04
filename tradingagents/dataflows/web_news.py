@@ -276,7 +276,9 @@ def get_global_news_web(
                     allowed_paths=source["paths"],
                 )
             )
-        except Exception as exc:
+        except requests.RequestException as exc:
+            errors.append(f"{source['source']}: {exc}")
+        except ValueError as exc:
             errors.append(f"{source['source']}: {exc}")
 
     unique: dict[str, dict] = {}
@@ -290,8 +292,6 @@ def get_global_news_web(
         published = article.get("published")
         if published is None:
             filtered.append(article)
-            continue
-        if not isinstance(published, datetime):
             continue
         if not (start_dt <= published < end_dt):
             continue
