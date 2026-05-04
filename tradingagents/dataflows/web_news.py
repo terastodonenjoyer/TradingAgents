@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from typing import Iterable, Optional
 from urllib.parse import urljoin, urlparse
@@ -26,17 +26,24 @@ def _fetch_html(url: str) -> str:
 
 
 def _parse_datetime(value: str | None) -> Optional[datetime]:
+    """Parse a datetime string and normalize to naive UTC for comparisons."""
     if not value or not isinstance(value, str):
         return None
     value = value.strip()
     if not value:
         return None
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo:
+            return parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        return parsed
     except ValueError:
         pass
     try:
-        return parsedate_to_datetime(value)
+        parsed = parsedate_to_datetime(value)
+        if parsed.tzinfo:
+            return parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        return parsed
     except (TypeError, ValueError):
         return None
 
@@ -281,14 +288,11 @@ def get_global_news_web(
     for article in unique.values():
         published = article.get("published")
         if isinstance(published, datetime):
-            published_naive = published.replace(tzinfo=None)
-            if not (start_dt <= published_naive <= curr_dt):
+            if not (start_dt <= published <= curr_dt):
                 continue
         filtered.append(article)
 
-    filtered.sort(
-        key=lambda item: item.get("published") or datetime.min, reverse=True
-    )
+    filtered.sort(key=lambda item: item.get("published") or datetime.min, reverse=True)
     filtered = filtered[:limit]
     result = _format_articles(
         filtered,
