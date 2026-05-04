@@ -140,7 +140,7 @@ def _extract_json_ld_articles(
                 )
                 if article:
                     articles.append(article)
-            if node_types == {"ListItem"} and isinstance(node.get("item"), str):
+            if "ListItem" in node_types and isinstance(node.get("item"), str):
                 article = _build_article(
                     {"name": node.get("name"), "url": node.get("item")},
                     base_url=base_url,
@@ -293,6 +293,7 @@ def get_global_news_web(
         filtered.append(article)
 
     filtered.sort(key=lambda item: item.get("published") or datetime.min, reverse=True)
+    filtered.sort(key=lambda item: item.get("published") is None)
     filtered = filtered[:limit]
     result = _format_articles(
         filtered,
