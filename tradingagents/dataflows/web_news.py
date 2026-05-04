@@ -10,6 +10,7 @@ import requests
 from parsel import Selector
 
 _DEFAULT_TIMEOUT = 10
+_MIN_TITLE_LENGTH = 10
 _USER_AGENT = "TradingAgents/1.0 (+https://github.com/TauricResearch/TradingAgents)"
 _ARTICLE_TYPES = {"NewsArticle", "Article", "Report", "LiveBlogPosting", "BlogPosting"}
 
@@ -170,7 +171,7 @@ def _extract_link_articles(
         if not url or not _is_allowed_url(url, allowed_domains, allowed_paths):
             continue
         title = " ".join(text.strip() for text in link.css("::text").getall()).strip()
-        if len(title) < 10:
+        if len(title) < _MIN_TITLE_LENGTH:
             continue
         articles.append(
             {
@@ -281,7 +282,7 @@ def get_global_news_web(
         published = article.get("published")
         if isinstance(published, datetime):
             published_naive = published.replace(tzinfo=None)
-            if not (start_dt <= published_naive <= curr_dt + timedelta(days=1)):
+            if not (start_dt <= published_naive <= curr_dt):
                 continue
         filtered.append(article)
 
