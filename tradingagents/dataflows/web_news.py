@@ -245,6 +245,7 @@ def get_global_news_web(
     try:
         curr_dt = datetime.strptime(curr_date, "%Y-%m-%d")
         start_dt = curr_dt - timedelta(days=look_back_days)
+        end_dt = curr_dt + timedelta(days=1)
     except ValueError as exc:
         return f"Invalid date format: {exc}"
 
@@ -287,13 +288,22 @@ def get_global_news_web(
     filtered = []
     for article in unique.values():
         published = article.get("published")
-        if isinstance(published, datetime):
-            if not (start_dt <= published <= curr_dt):
-                continue
+        if published is None:
+            filtered.append(article)
+            continue
+        if not isinstance(published, datetime):
+            continue
+        if not (start_dt <= published < end_dt):
+            continue
         filtered.append(article)
 
-    dated = [item for item in filtered if item.get("published")]
-    undated = [item for item in filtered if not item.get("published")]
+    dated = []
+    undated = []
+    for item in filtered:
+        if item.get("published"):
+            dated.append(item)
+        else:
+            undated.append(item)
     dated.sort(key=lambda item: item["published"], reverse=True)
     filtered = dated + undated
     filtered = filtered[:limit]
