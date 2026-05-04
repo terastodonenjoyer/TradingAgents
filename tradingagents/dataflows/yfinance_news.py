@@ -106,7 +106,7 @@ def get_news_yfinance(
 
 def get_global_news_yfinance(
     curr_date: str,
-    look_back_days: int = 7,
+    look_back_days: int = 5,
     limit: int = 10,
 ) -> str:
     """
